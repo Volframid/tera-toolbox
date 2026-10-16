@@ -1,0 +1,27 @@
+:root{--glass-alpha:.505;--glass-filter:none;--glass-panel-rgb:25,29,34;--glass-sidebar-rgb:23,27,32;--glass-surface-rgb:32,37,44;--glass-wallpaper:url('../assets/glass-background.svg')}
+body.glass-ui{isolation:isolate;background:var(--bg)}
+body.glass-ui:before{content:'';position:fixed;top:0;right:0;bottom:0;left:0;z-index:-1;background-image:var(--glass-wallpaper);background-size:cover;background-position:center;pointer-events:none}
+body.glass-ui .titlebar{background:rgba(var(--glass-panel-rgb),.6);border-color:rgba(230,230,255,.13)}
+body.glass-ui .app-shell{padding:17px;gap:17px}
+body.glass-ui .sidebar,body.glass-ui .workspace{background:rgba(var(--glass-panel-rgb),var(--glass-alpha));border:1px solid rgba(230,230,255,.20);border-radius:13px;backdrop-filter:var(--glass-filter);-webkit-backdrop-filter:var(--glass-filter);box-shadow:0 14px 34px #070b151c,inset 0 1px 0 #ffffff0a}
+body.glass-ui .sidebar{background:rgba(var(--glass-sidebar-rgb),var(--glass-alpha));padding-top:24px}
+body.glass-ui .workspace{min-width:0}
+body.glass-ui .page{padding:25px 26px 0}
+body.glass-ui .module-row,body.glass-ui .table-heading{border-color:rgba(215,220,240,.12)}
+body.glass-ui .search,body.glass-ui select,body.glass-ui .module-icon,body.glass-ui .settings-group,body.glass-ui .overview-stats article,body.glass-ui .overview-shortcuts button,body.glass-ui .grid-view .module-row{background-color:rgba(var(--glass-surface-rgb),.32);border-color:rgba(215,220,240,.22)}
+body.glass-ui .module-row:hover,body.glass-ui .settings-group h2{background:rgba(var(--glass-surface-rgb),.30)}
+body.glass-ui .log-contents{background:rgba(var(--glass-panel-rgb),.38);border-color:rgba(215,220,240,.24)}
+body.glass-ui .setting,body.glass-ui .page-footer,body.glass-ui .sidebar-bottom{border-color:rgba(215,220,240,.16)}
+body.glass-ui .button:not(.primary):not(.danger),body.glass-ui .module-tabs>button:not(.selected):not(.icon-button){background:rgba(var(--glass-panel-rgb),.22);border-color:rgba(215,220,240,.28)}
+body.glass-ui .nav-button:not(.active):hover{background:rgba(var(--glass-surface-rgb),.4)}
+body.glass-ui .page-footer{background:none}
+body.glass-ui select option{background:var(--panel);color:var(--text)}
+body.glass-ui .splash{margin:17px;width:calc(100% - 34px);height:calc(100% - 34px);background:rgba(var(--glass-panel-rgb),var(--glass-alpha));border:1px solid rgba(230,230,255,.20);border-radius:15px;backdrop-filter:var(--glass-filter)}
+:root[data-theme="white"] body.glass-ui .sidebar,:root[data-theme="white"] body.glass-ui .workspace{border-color:#ffffffb3;box-shadow:0 12px 35px #26334718}
+:root[data-theme="white"] body.glass-ui{--muted:#4c586c;--quiet:#546177}
+:root[data-theme="white"] body.glass-ui .module-row,:root[data-theme="white"] body.glass-ui .table-heading,:root[data-theme="white"] body.glass-ui .setting,:root[data-theme="white"] body.glass-ui .page-footer{border-color:#485c7a24}
+.background-buttons{display:flex;align-items:center;gap:8px;flex-shrink:0}.background-buttons .button{font-size:11px;min-height:32px;padding:7px 10px}
+.range-setting input:disabled{opacity:.4;cursor:default}
+@media(max-width:1050px){body.glass-ui .app-shell{padding:12px;gap:12px}body.glass-ui .sidebar{width:190px}body.glass-ui .page{padding:22px 20px 0}}
+@media(max-width:820px){body.glass-ui .app-shell{padding:9px;gap:9px}body.glass-ui .sidebar{width:155px;padding-left:6px;padding-right:6px}body.glass-ui .page{padding:19px 15px 0}.background-buttons{gap:5px}.background-buttons .button{padding:7px}}
+@media(max-height:620px){body.glass-ui .sidebar{padding-top:14px}body.glass-ui .app-shell{padding-top:9px;padding-bottom:9px}}

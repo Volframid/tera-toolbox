@@ -1,0 +1,22 @@
+/* Small, bounded SVG effects; no frame timers or full-window glow. */
+.brand-cube .cube-art{stroke:none}
+.cube-art .cube-face{fill:none}
+.cube-art .cube-lines{fill:none;stroke:var(--cube-light);stroke-width:1.2;opacity:.85}
+.cube-art .cube-inner-base{fill:url(#energy-depth)}
+.energy-depth-core{stop-color:var(--accent);stop-opacity:.70}.energy-depth-edge{stop-color:var(--accent);stop-opacity:.06}
+.energy-spectrum-violet{stop-color:var(--accent)}.energy-spectrum-light{stop-color:var(--cube-light)}.energy-spectrum-cool{stop-color:#87e7ff}
+.cube-art .cube-inner-wave{fill:url(#energy-spectrum);opacity:.28;animation:none!important;transform:none;will-change:auto}
+.cube-art .cube-wave-front{opacity:.38}
+.energy-filament{fill:none;stroke:url(#energy-spectrum);stroke-width:1.25;stroke-linecap:round;opacity:.95}
+.energy-filament.secondary{stroke-width:.65;opacity:.65}
+.energy-core{fill:var(--cube-light);stroke:none;opacity:.75}
+.cube-art .cube-flow{fill:none;stroke:url(#energy-spectrum);stroke-width:2.1;stroke-linecap:round;stroke-dasharray:34 94;animation:cube-wave 2.8s linear infinite!important;filter:url(#energy-glow);opacity:1}
+.cube-art .cube-flow.echo{stroke-width:3.4;stroke-dasharray:9 119;animation-direction:reverse!important;animation-duration:4.2s!important;opacity:.6}
+.energy-spark{fill:#ecfaff;stroke:var(--cube-light);stroke-width:.5;filter:url(#energy-glow)}
+.motion-paused .cube-art .cube-flow{animation-play-state:paused!important}
+.logo-static .cube-art .cube-flow{animation:none!important}
+:root[data-theme="white"] .energy-spectrum-cool{stop-color:#485fd6}
+:root[data-theme="white"] .energy-spark{fill:#6942b5}
+/* CEM explicitly requested continuous interior motion. Reduced motion keeps the entire logo still;
+   Animated logo can disable both CSS and SVG motion completely. */
+@media(prefers-reduced-motion:reduce){.brand-cube{animation:none!important}}

@@ -1,0 +1,33 @@
+# Private local context and user state
+LOCAL_UPDATES.md
+**/LOCAL_UPDATES.md
+/config.json
+/error.log
+*.log
+/logs/
+/profiles/
+**/module.config.json
+/data/ui-customizations/user-assets/
+/data/ui-backups/
+/node_modules/electron/
+/electron.zip
+/dist/
+/.release/
+/.cache/
+# Only the seven upstream default module descriptors belong in Git.
+/mods/*
+!/mods/bugfix/
+!/mods/command/
+!/mods/fps-utils/
+!/mods/instant-everything/
+!/mods/library/
+!/mods/skill-prediction/
+!/mods/tera-game-state/
+/mods/*/*
+!/mods/bugfix/module.json
+!/mods/command/module.json
+!/mods/fps-utils/module.json
+!/mods/instant-everything/module.json
+!/mods/library/module.json
+!/mods/skill-prediction/module.json
+!/mods/tera-game-state/module.json
