@@ -282,6 +282,8 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+// Keep UI compositing accelerated; avoid Chromium 87 H.264 decoder corruption.
+app.commandLine.appendSwitch("disable-accelerated-video-decode");
 app.commandLine.appendSwitch("force_low_power_gpu");
 
 if (app.isReady())

@@ -10,6 +10,7 @@ const state = { page: 'modules', discover: false, mods: [], available: [], catal
   config: null, running: false, starting: false, stopping: false, busy: false, pending: false,
   updateAvailable: false, logs: [], logTimer: null, actionTimer: null, toastTimer: null, view: 'list' };
 let mui = new TeraToolboxMUI('en'), lastFocus = null;
+let backgroundSelection = 0;
 
 function node(tag, className, text) {
   const value = document.createElement(tag);
@@ -212,8 +213,8 @@ const SETTINGS = [
     ['theme', 'Theme', 'Apply colors to Toolbox and newly opened module settings windows.', 'theme', true],
     ['glassEnabled', 'Glassy UI', 'Clear or frosted panels over your wallpaper. Text and icons stay sharp.', 'toggle', true],
     ['glassTransparency', 'Glass transparency', 'Adjust panel transparency. Preview instantly; release to save.', 'range', true],
-    ['glassBlur', 'Background blur', '0% keeps your wallpaper sharp. Increase for a frosted finish.', 'blur', true],
-    ['glassBackground', 'Background image', 'Choose a PNG, JPEG or WebP wallpaper, or restore the built-in background.', 'background', true],
+    ['glassBlur', 'Background blur', 'Blur the entire background, including gaps and edges. Text and controls stay sharp.', 'blur', true],
+    ['glassBackground', 'Background', 'Choose a PNG, JPEG, WebP, GIF or MP4. Videos play silently on repeat.', 'background', true],
     ['animatedLogo', 'Animated logo', 'Flowing energy, liquid waves and luminous trails inside the cube.', 'toggle', true],
     ['minimizetotray', 'Minimize to tray', 'Keep Toolbox available in the system tray when minimized.', 'toggle', true]
   ] },
@@ -274,13 +275,19 @@ function renderSettings() {
         control.appendChild(button('Reset', 'text-button', () => saveSetting(key, blur ? 0 : 55, true))); item.appendChild(control);
       } else if (kind === 'background') {
         const controls = node('div', 'background-buttons');
-        controls.appendChild(button('Choose image', 'button', async () => {
+        controls.appendChild(button('Choose file', 'button', async event => {
+          const request = ++backgroundSelection, picker = event.currentTarget;
+          picker.disabled = true;
           try {
-            const result = await remote.dialog.showOpenDialog(remote.getCurrentWindow(), { title: 'Choose a Toolbox background', properties: ['openFile'], filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }] });
-            if (!result.canceled && result.filePaths && result.filePaths[0]) saveSetting(key, appearance.selectBackground(result.filePaths[0]), true);
-          } catch (error) { modal('Could not load background', friendlyError(error)); }
+            const result = await remote.dialog.showOpenDialog(remote.getCurrentWindow(), { title: 'Choose a Toolbox background', properties: ['openFile'], filters: [{ name: 'Images and videos', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4'] }, { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] }, { name: 'MP4 videos', extensions: ['mp4'] }] });
+            if (!result.canceled && result.filePaths && result.filePaths[0]) {
+              const selected = await appearance.selectBackground(result.filePaths[0]);
+              if (request === backgroundSelection) saveSetting(key, selected, true);
+            }
+          } catch (error) { if (request === backgroundSelection) modal('Could not load background', friendlyError(error)); }
+          finally { picker.disabled = false; }
         }));
-        const reset = button('Default', 'text-button', () => saveSetting(key, '', true)); reset.disabled = !source[key]; controls.appendChild(reset); item.appendChild(controls);
+        const reset = button('Default', 'text-button', () => { ++backgroundSelection; saveSetting(key, '', true); }); reset.disabled = !source[key]; controls.appendChild(reset); item.appendChild(controls);
       } else {
         const enabled = kind === 'inverse' ? !source[key] : !!source[key];
         const control = button('', 'switch', () => saveSetting(key, kind === 'inverse' ? enabled : !enabled, gui));

@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1",
+  "version": "1.3.0",
   "upstream": {
     "repository": "https://github.com/tera-private-toolbox/tera-toolbox",
     "commit": "5e9a7c0f88403cc7d8c2de8df01c8306d56bbe15"

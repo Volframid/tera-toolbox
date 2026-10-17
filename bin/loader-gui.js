@@ -490,6 +490,12 @@ process.on("warning", (warning) => {
 });
 
 module.exports = function StartGUI() {
+	// An older startup script may have downloaded this loader in the current process.
+	if (!app.commandLine.hasSwitch("disable-accelerated-video-decode")) {
+		app.relaunch({ args: process.argv.slice(1).concat("--disable-accelerated-video-decode") });
+		app.exit(0);
+		return Promise.resolve();
+	}
 	return new Promise((resolve, reject) => {
 		const { initGlobalSettings } = require("./utils");
 		initGlobalSettings(false).then(() => {

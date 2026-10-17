@@ -8,7 +8,7 @@ The screenshot demonstrates a user-selected wallpaper. That wallpaper is not ins
 
 ## Download and run
 
-1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.2.1-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
+1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.3.0-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
 2. Extract the entire ZIP to a writable folder. Do not run it inside the archive or mix it into an existing Toolbox installation.
 3. Run **TeraToolbox.exe**. Internet access is needed for updates and the default modules' first download.
 4. Open **Modules** to manage modules, or copy your own modules into this installation's `mods` folder. Use **Start Toolbox**, then start the game as usual.
@@ -19,8 +19,8 @@ Windows x64 is required. Protocol/server compatibility follows the underlying To
 
 - **Overview**, searchable **Modules** with list/grid views, **Console** and **Settings**.
 - Black, Grey, White and Pink themes, including matching module settings window colors.
-- **Glassy UI** with independent **Glass transparency** and **Background blur** sliders. Leave blur at **0%** for a sharp wallpaper. White keeps stronger surface shading for readability.
-- **Background image → Choose image** accepts PNG, JPEG and WebP, up to 12 MB and 10,000 pixels per side. **Default** restores the built-in abstract background.
+- **Glassy UI** with independent **Glass transparency** and **Background blur** sliders. Blur covers the entire wallpaper, including gaps and outer edges, while text and controls stay sharp. Leave blur at **0%** for a clear background. White keeps stronger surface shading for readability.
+- **Background → Choose file** accepts PNG, JPEG, WebP and animated GIF images (up to 12 MB and 10,000 pixels per side), or MP4 videos (up to 128 MB and 4,096 pixels per side). Videos play silently on repeat and pause when Toolbox is hidden or Glassy UI is off. H.264 MP4 is recommended for compatibility. Glass transparency and blur also apply to animated backgrounds. **Default** restores the built-in abstract background.
 - Animated energy cube with flowing interior waves and light trails. **Animated logo** disables it; background/unfocused windows pause it.
 - Searchable, filterable console with log export.
 
