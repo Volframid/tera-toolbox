@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "upstream": {
     "repository": "https://github.com/tera-private-toolbox/tera-toolbox",
     "commit": "5e9a7c0f88403cc7d8c2de8df01c8306d56bbe15"
@@ -73,6 +73,8 @@
     "data/ui-customizations/graphite/css/splash.css",
     "data/ui-customizations/graphite/css/themes.css",
     "data/ui-customizations/graphite/js/appearance.js",
+    "data/ui-customizations/graphite/js/locales.json",
+    "data/ui-customizations/graphite/js/localization.js",
     "data/ui-customizations/graphite/js/main.js",
     "data/ui-customizations/graphite/js/splash.js",
     "data/ui-customizations/graphite/main.html",

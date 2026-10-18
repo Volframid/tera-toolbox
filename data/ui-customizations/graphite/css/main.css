@@ -12,3 +12,9 @@
 @media(prefers-reduced-motion:reduce){.brand-cube{animation:none!important}.cube-flow{animation-duration:16s!important}.switch,.switch:after{transition:none}}
 
 @media(max-height:620px){.sidebar{padding-top:15px;padding-bottom:9px}.brand{height:65px;padding-bottom:15px}.nav-caption{padding-top:9px;padding-bottom:12px}.nav-button{padding-top:10px;padding-bottom:10px;margin-bottom:4px}.sidebar-bottom{padding-top:10px}.proxy-state{margin-bottom:10px}.sidebar-links{margin-top:8px}}
+
+/* Localization: wrap longer labels; keep diagnostics and module identifiers intact. */
+.setting-copy{min-width:0}.setting-copy strong,.setting-copy p{overflow-wrap:break-word}
+.sidebar-links{flex-wrap:wrap}.nav-button{min-width:0}.nav-button span{overflow-wrap:break-word}
+[dir="rtl"] .log-contents,[dir="rtl"] .recent-row,[dir="rtl"] .module-name,[dir="rtl"] .module-description{direction:ltr;text-align:left}
+[dir="rtl"] .search input{text-align:right}

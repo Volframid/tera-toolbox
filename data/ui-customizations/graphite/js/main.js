@@ -4,6 +4,7 @@ const { remote, ipcRenderer, shell } = require('electron');
 const { TeraToolboxMUI, LanguageNames } = require('tera-toolbox-mui');
 const fs = require('fs');
 const appearance = window.ToolboxAppearance;
+const locale = window.ToolboxLocale, t = locale.t;
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const state = { page: 'modules', discover: false, mods: [], available: [], catalog: 'idle',
@@ -26,8 +27,8 @@ function button(text, className, callback) {
   const value = node('button', className, text); value.type = 'button'; value.addEventListener('click', callback); return value;
 }
 function clear(value) { while (value.firstChild) value.removeChild(value.firstChild); }
-function nameOf(mod) { return String(mod.options && (mod.options.guiName || mod.options.cliName) || mod.rawName || mod.name || 'Unnamed module'); }
-function friendlyError(error) { return error && error.message || String(error); }
+function nameOf(mod) { return String(mod.options && (mod.options.guiName || mod.options.cliName) || mod.rawName || mod.name || t('Unnamed module')); }
+function friendlyError(error) { return t(error && error.message || String(error)); }
 function translate(key, fallback) { try { return mui.get(key); } catch (_) { return fallback; } }
 function toast(text) {
   $('toast').textContent = text; $('toast').hidden = false;
@@ -36,7 +37,7 @@ function toast(text) {
 function external(url) {
   try {
     const parsed = new URL(url);
-    if (!['https:', 'http:'].includes(parsed.protocol)) throw Error('Only web links can be opened.');
+    if (!['https:', 'http:'].includes(parsed.protocol)) throw Error(t('Only web links can be opened.'));
     Promise.resolve(shell.openExternal(parsed.href)).catch(error => toast(friendlyError(error)));
   } catch (error) { toast(friendlyError(error)); }
 }
@@ -45,7 +46,7 @@ function modal(title, content, actions) {
   lastFocus = document.activeElement; $('modal-title').textContent = title;
   clear($('modal-body')); if (typeof content === 'string') $('modal-body').textContent = content; else $('modal-body').appendChild(content);
   clear($('modal-actions'));
-  for (const action of actions || [{ label: 'Close' }]) $('modal-actions').appendChild(button(action.label, 'button ' + (action.className || ''), () => { closeModal(); if (action.run) action.run(); }));
+  for (const action of actions || [{ label: t('Close') }]) $('modal-actions').appendChild(button(action.label, 'button ' + (action.className || ''), () => { closeModal(); if (action.run) action.run(); }));
   $('modal').hidden = false; $('modal-close').focus();
 }
 function closeMenu() { $('action-menu').hidden = true; }
@@ -61,10 +62,10 @@ function setPage(page) {
 }
 function setProxy() {
   const busy = state.starting || state.stopping;
-  const status = state.starting ? 'Starting...' : state.stopping ? 'Stopping...' : state.running ? 'Toolbox running' : 'Toolbox stopped';
+  const status = state.starting ? t('Starting...') : state.stopping ? t('Stopping...') : state.running ? t('Toolbox running') : t('Toolbox stopped');
   $('proxy-state').textContent = status;
   $('proxy-dot').className = 'status-dot ' + (busy ? 'busy' : state.running ? 'running' : '');
-  $('startproxy').textContent = state.starting ? 'Starting...' : state.stopping ? 'Stopping...' : state.running ? 'Stop Toolbox' : 'Start Toolbox';
+  $('startproxy').textContent = state.starting ? t('Starting...') : state.stopping ? t('Stopping...') : state.running ? t('Stop Toolbox') : t('Start Toolbox');
   $('startproxy-btn').disabled = busy || !state.config;
   $('proxy-icon').firstElementChild.setAttribute('href', '#i-' + (state.running ? 'stop' : 'play'));
   renderOverview();
@@ -91,25 +92,25 @@ function moduleIcon(mod) {
 function startAction(channel, mod) {
   if (state.busy) return;
   if (['install mod', 'uninstall mod'].includes(channel) && (state.running || state.starting || state.stopping)) {
-    modal('Stop Toolbox first', 'Install or remove modules after stopping Toolbox. This keeps the running session intact.'); return;
+    modal(t('Stop Toolbox first'), t('Install or remove modules after stopping Toolbox. This keeps the running session intact.')); return;
   }
   state.busy = true;
   clearTimeout(state.actionTimer);
-  state.actionTimer = setTimeout(() => { state.busy = false; renderModules(); toast('No confirmation received. Refresh the list or check the console.'); }, 15000);
+  state.actionTimer = setTimeout(() => { state.busy = false; renderModules(); toast(t('No confirmation received. Refresh the list or check the console.')); }, 15000);
   renderModules();
   ipcRenderer.send(channel, mod);
-  if (channel === 'toggle mod load' && state.running) { state.pending = true; toast('Load preference saved for the next Toolbox start.'); }
+  if (channel === 'toggle mod load' && state.running) { state.pending = true; toast(t('Load preference saved for the next Toolbox start.')); }
 }
 function finishAction() { state.busy = false; clearTimeout(state.actionTimer); state.actionTimer = null; }
 function showModuleMenu(mod, anchor) {
   const menu = $('action-menu'); clear(menu);
-  const meta = node('div', 'menu-meta', nameOf(mod) + (mod.version ? '\nVersion ' + mod.version : '') + (mod.author ? '\nAuthor: ' + mod.author : ''));
+  const meta = node('div', 'menu-meta', nameOf(mod) + (mod.version ? '\n' + t('Version') + ' ' + mod.version : '') + (mod.author ? '\n' + t('Author') + ': ' + mod.author : ''));
   menu.appendChild(meta);
-  menu.appendChild(button('Module details', '', () => { closeMenu(); modal(nameOf(mod), String(mod.description || 'No description provided.') + '\n\n' + (mod.version ? 'Version: ' + mod.version + '\n' : '') + (mod.author ? 'Author: ' + mod.author + '\n' : '') + (mod.isCoreModule ? 'Core Toolbox module.' : 'Load toggles control the next Toolbox start.')); }));
-  if (mod.readmePath) menu.appendChild(button('Open README', '', () => { closeMenu(); ipcRenderer.send('open in notepad', mod.readmePath); }));
-  if (mod.supportUrl) menu.appendChild(button('Support / repository', '', () => { closeMenu(); external(mod.supportUrl); }));
-  if (mod.donationUrl) menu.appendChild(button('Support the author', '', () => { closeMenu(); external(mod.donationUrl); }));
-  if (!state.discover && !mod.isCoreModule) menu.appendChild(button('Remove module', 'destructive', () => { closeMenu(); modal('Remove ' + nameOf(mod) + '?', 'This uses Toolbox’s normal module removal. Back up any module data you want to keep.', [{ label: 'Cancel' }, { label: 'Remove', className: 'danger', run: () => startAction('uninstall mod', mod) }]); }));
+  menu.appendChild(button(t('Module details'), '', () => { closeMenu(); modal(nameOf(mod), String(mod.description || t('No description provided.')) + '\n\n' + (mod.version ? t('Version') + ': ' + mod.version + '\n' : '') + (mod.author ? t('Author') + ': ' + mod.author + '\n' : '') + (mod.isCoreModule ? t('Core Toolbox module.') : t('Load toggles control the next Toolbox start.'))); }));
+  if (mod.readmePath) menu.appendChild(button(t('Open README'), '', () => { closeMenu(); ipcRenderer.send('open in notepad', mod.readmePath); }));
+  if (mod.supportUrl) menu.appendChild(button(t('Support / repository'), '', () => { closeMenu(); external(mod.supportUrl); }));
+  if (mod.donationUrl) menu.appendChild(button(t('Support the author'), '', () => { closeMenu(); external(mod.donationUrl); }));
+  if (!state.discover && !mod.isCoreModule) menu.appendChild(button(t('Remove module'), 'destructive', () => { closeMenu(); modal(t('Remove {name}?', { name: nameOf(mod) }), t('This uses Toolbox’s normal module removal. Back up any module data you want to keep.'), [{ label: t('Cancel') }, { label: t('Remove'), className: 'danger', run: () => startAction('uninstall mod', mod) }]); }));
   menu.hidden = false;
   const bounds = anchor.getBoundingClientRect();
   menu.style.left = Math.max(8, Math.min(innerWidth - 213, bounds.right - 205)) + 'px';
@@ -130,38 +131,38 @@ function renderModules() {
   list.classList.toggle('grid-view', state.view === 'grid');
   const source = state.discover ? state.available : state.mods;
   const items = source.filter(matches).slice().sort((a, b) => Number(!!a.isCoreModule) - Number(!!b.isCoreModule) || nameOf(a).localeCompare(nameOf(b)));
-  $('status-column').textContent = state.discover ? '' : 'STATUS'; $('update-column').textContent = state.discover ? '' : 'AUTO UPDATE';
+  $('status-column').textContent = state.discover ? '' : t('STATUS'); $('update-column').textContent = state.discover ? '' : t('AUTO UPDATE');
   for (const mod of items) {
     const row = node('div', 'module-row'); row.dataset.name = String(mod.name || mod.rawName || '');
     const identity = node('div', 'module-identity'), image = node('div', 'module-icon'); image.appendChild(icon(moduleIcon(mod))); identity.appendChild(image);
     const copy = node('div', 'module-copy'), title = node('div', 'module-name', nameOf(mod)); title.title = nameOf(mod);
-    const description = node('div', 'module-description', mod.description || (mod.isCoreModule ? 'Core Toolbox module' : 'Toolbox module')); description.title = String(mod.description || '');
+    const description = node('div', 'module-description', mod.description || (mod.isCoreModule ? t('Core Toolbox module') : t('Toolbox module'))); description.title = String(mod.description || '');
     copy.appendChild(title); copy.appendChild(description); identity.appendChild(copy); row.appendChild(identity);
     if (state.discover) {
-      const install = button('Install', 'button primary install-button', () => startAction('install mod', mod)); install.disabled = state.busy; row.appendChild(install);
-      const details = button('', 'icon-button module-menu', event => showModuleMenu(mod, event.currentTarget)); details.appendChild(icon('more')); details.setAttribute('aria-label', nameOf(mod) + ' details'); row.appendChild(details);
+      const install = button(t('Install'), 'button primary install-button', () => startAction('install mod', mod)); install.disabled = state.busy; row.appendChild(install);
+      const details = button('', 'icon-button module-menu', event => showModuleMenu(mod, event.currentTarget)); details.appendChild(icon('more')); details.setAttribute('aria-label', t('{name} details', { name: nameOf(mod) })); row.appendChild(details);
     } else {
       const compatible = mod.compatibility === 'compatible';
       const status = button('', 'module-status' + (mod.disabled ? ' disabled' : '') + (!compatible ? ' unsupported' : ''), () => startAction('toggle mod load', mod));
-      const dot = node('span', 'status-dot'); status.appendChild(dot); status.appendChild(node('span', '', mod.isCoreModule ? 'Core' : !compatible ? 'Legacy' : mod.disabled ? 'Disabled' : 'Enabled'));
+      const dot = node('span', 'status-dot'); status.appendChild(dot); status.appendChild(node('span', '', mod.isCoreModule ? t('Core') : !compatible ? t('Legacy') : mod.disabled ? t('Disabled') : t('Enabled')));
       status.disabled = state.busy || !!mod.isCoreModule || !compatible;
-      status.title = mod.isCoreModule ? 'Required Toolbox module' : 'Configured load preference; changes apply at the next Toolbox start.';
-      status.setAttribute('aria-label', 'Toggle loading for ' + nameOf(mod)); status.setAttribute('aria-pressed', String(!mod.disabled)); row.appendChild(status);
+      status.title = mod.isCoreModule ? t('Required Toolbox module') : t('Configured load preference; changes apply at the next Toolbox start.');
+      status.setAttribute('aria-label', t('Toggle loading for {name}', { name: nameOf(mod) })); status.setAttribute('aria-pressed', String(!mod.disabled)); row.appendChild(status);
       if (compatible && !mod.isCoreModule) {
-        const update = button('', 'switch', () => startAction('toggle mod autoupdate', mod)); update.setAttribute('role', 'switch'); update.setAttribute('aria-checked', String(!mod.disableAutoUpdate)); update.setAttribute('aria-label', 'Automatic updates for ' + nameOf(mod)); update.title = 'Automatic module updates'; update.disabled = state.busy; row.appendChild(update);
-      } else row.appendChild(node('span', 'switch-label', mod.isCoreModule ? 'Managed' : '—'));
-      const more = button('', 'icon-button module-menu', event => showModuleMenu(mod, event.currentTarget)); more.appendChild(icon('more')); more.setAttribute('aria-label', 'Actions for ' + nameOf(mod)); more.disabled = state.busy; row.appendChild(more);
+        const update = button('', 'switch', () => startAction('toggle mod autoupdate', mod)); update.setAttribute('role', 'switch'); update.setAttribute('aria-checked', String(!mod.disableAutoUpdate)); update.setAttribute('aria-label', t('Automatic updates for {name}', { name: nameOf(mod) })); update.title = t('Automatic module updates'); update.disabled = state.busy; row.appendChild(update);
+      } else row.appendChild(node('span', 'switch-label', mod.isCoreModule ? t('Managed') : '—'));
+      const more = button('', 'icon-button module-menu', event => showModuleMenu(mod, event.currentTarget)); more.appendChild(icon('more')); more.setAttribute('aria-label', t('Actions for {name}', { name: nameOf(mod) })); more.disabled = state.busy; row.appendChild(more);
     }
     list.appendChild(row);
   }
-  if (!items.length) emptyModules(state.discover && state.catalog === 'loading' ? 'Finding modules...' : 'No modules to show', state.discover && state.catalog === 'loading' ? 'Loading the Toolbox module catalog.' : state.discover && state.catalog === 'error' ? 'The catalog could not be loaded. Check your connection and try Refresh.' : 'Try a different search or filter.');
-  $('module-count').textContent = items.length + (items.length === 1 ? ' module' : ' modules') + (items.length !== source.length ? ' of ' + source.length : '');
+  if (!items.length) emptyModules(state.discover && state.catalog === 'loading' ? t('Finding modules...') : t('No modules to show'), state.discover && state.catalog === 'loading' ? t('Loading the Toolbox module catalog.') : state.discover && state.catalog === 'error' ? t('The catalog could not be loaded. Check your connection and try Refresh.') : t('Try a different search or filter.'));
+  $('module-count').textContent = t(items.length !== source.length ? '{count} of {total} modules' : items.length === 1 ? '{count} module' : '{count} modules', { count: items.length, total: source.length });
   renderUpdateState();
 }
 function renderUpdateState() {
   const container = $('update-state'); clear(container);
   const dot = node('span', 'status-dot ' + (state.updateAvailable || state.pending ? 'busy' : 'neutral')); container.appendChild(dot);
-  container.appendChild(node('span', '', state.updateAvailable ? 'Toolbox update available' : state.pending ? 'Load changes apply next start' : state.config && state.config.noupdate ? 'Module updates disabled' : 'Updates checked at startup'));
+  container.appendChild(node('span', '', state.updateAvailable ? t('Toolbox update available') : state.pending ? t('Load changes apply next start') : state.config && state.config.noupdate ? t('Module updates disabled') : t('Updates checked at startup')));
 }
 function setCatalog(discover, refresh) {
   state.discover = discover; $('installed-tab').classList.toggle('selected', !discover); $('discover-tab').classList.toggle('selected', discover);
@@ -172,16 +173,16 @@ function setCatalog(discover, refresh) {
   renderModules();
 }
 function renderOverview() {
-  $('overview-status').textContent = state.starting ? 'Starting' : state.stopping ? 'Stopping' : state.running ? 'Running' : 'Stopped';
-  $('overview-status-note').textContent = state.running ? 'Proxy is active.' : 'Ready when you are.';
+  $('overview-status').textContent = state.starting ? t('Starting') : state.stopping ? t('Stopping') : state.running ? t('Running') : t('Stopped');
+  $('overview-status-note').textContent = state.running ? t('Proxy is active.') : t('Ready when you are.');
   $('overview-modules').textContent = String(state.mods.length);
-  $('overview-enabled').textContent = state.mods.filter(mod => !mod.disabled).length + ' configured to load.';
-  $('overview-updates').textContent = !state.config ? '—' : state.config.noupdate ? 'Off' : 'On';
+  $('overview-enabled').textContent = t('{count} configured to load.', { count: state.mods.filter(mod => !mod.disabled).length });
+  $('overview-updates').textContent = !state.config ? '—' : state.config.noupdate ? t('Off') : t('On');
   const eligible = state.mods.filter(mod => !mod.isCoreModule && mod.compatibility === 'compatible');
-  $('overview-update-note').textContent = eligible.filter(mod => !mod.disableAutoUpdate).length + ' of ' + eligible.length + ' modules allow automatic updates.';
+  $('overview-update-note').textContent = t('{count} of {total} modules allow automatic updates.', { count: eligible.filter(mod => !mod.disableAutoUpdate).length, total: eligible.length });
   if (state.page !== 'overview') return;
   const recent = $('recent-activity'); clear(recent);
-  if (!state.logs.length) recent.appendChild(node('p', 'quiet-empty', 'Activity appears here when Toolbox writes to the console.'));
+  if (!state.logs.length) recent.appendChild(node('p', 'quiet-empty', t('Activity appears here when Toolbox writes to the console.')));
   for (const entry of state.logs.slice(-6).reverse()) { const row = node('div', 'recent-row ' + entry.type); row.appendChild(node('time', '', entry.time)); row.appendChild(node('span', '', entry.text)); recent.appendChild(row); }
 }
 function logTime(date) { return [date.getHours(), date.getMinutes(), date.getSeconds()].map(n => String(n).padStart(2, '0')).join(':'); }
@@ -205,7 +206,7 @@ function renderLogs() {
   const fragment = document.createDocumentFragment();
   for (const entry of rows) { const row = node('div', 'log-row ' + entry.type); if (!state.config || state.config.gui.logtimes) row.appendChild(node('time', '', entry.time)); row.appendChild(node('span', '', entry.text)); fragment.appendChild(row); }
   container.appendChild(fragment); container.scrollTop = $('log-follow').checked ? container.scrollHeight : top;
-  $('log-count').textContent = rows.length + ' of ' + state.logs.length + ' entries';
+  $('log-count').textContent = t('{count} of {total} entries', { count: rows.length, total: state.logs.length });
 }
 const SETTINGS = [
   { title: 'Appearance & window', rows: [
@@ -234,6 +235,11 @@ const SETTINGS = [
     ['noserverautojoin', 'Automatic server join', 'Use Toolbox’s automatic server selection behavior.', 'inverse']
   ] }
 ];
+function applyLanguage(value) {
+  const selected = locale.setLanguage(value);
+  try { mui = new TeraToolboxMUI(selected); } catch (_) {}
+  renderSettings(); renderModules(); setProxy(); renderLogs();
+}
 function saveSetting(key, value, gui) {
   if (!state.config) return;
   const next = { ...state.config, gui: { ...state.config.gui } };
@@ -241,53 +247,55 @@ function saveSetting(key, value, gui) {
   state.config = next; document.body.classList.toggle('logo-static', !next.gui.animatedLogo);
   try { appearance.apply(next.gui, remote.getCurrentWindow()); } catch (error) { toast(friendlyError(error)); }
   ipcRenderer.send('set config', next);
-  if (key === 'uilanguage') { try { mui = new TeraToolboxMUI(value); } catch (_) {} }
+  if (key === 'uilanguage') { applyLanguage(value); return; }
   motion(); renderSettings(); renderUpdateState(); renderOverview(); if (state.page === 'console') renderLogs();
 }
 function renderSettings() {
-  const list = $('settings-list'); clear(list);
-  if (!state.config) { list.appendChild(node('p', 'quiet-empty', 'Loading your settings...')); return; }
+  const list = $('settings-list'), scrollTop = list.scrollTop, focus = document.activeElement && document.activeElement.id; clear(list);
+  if (!state.config) { list.appendChild(node('p', 'quiet-empty', t('Loading your settings...'))); return; }
   for (const group of SETTINGS) {
-    const section = node('section', 'settings-group'); section.appendChild(node('h2', '', group.title));
+    const section = node('section', 'settings-group'); section.appendChild(node('h2', '', t(group.title)));
     for (const row of group.rows) {
-      const [key, label, description, kind, gui] = row;
+      const [key, labelKey, descriptionKey, kind, gui] = row;
+      const label = t(labelKey), description = t(descriptionKey);
       const item = node('div', 'setting'), copy = node('div', 'setting-copy'); copy.appendChild(node('strong', '', label)); copy.appendChild(node('p', '', description)); item.appendChild(copy);
       const source = gui ? state.config.gui : state.config;
       if (['language', 'theme'].includes(kind)) {
         const select = node('select'); select.setAttribute('aria-label', label); select.id = 'setting-' + key;
         const values = kind === 'language' ? LanguageNames : appearance.themes;
-        for (const [value, name] of Object.entries(values)) { const option = node('option', '', name); option.value = value; select.appendChild(option); }
-        select.value = String(source[key] || (kind === 'language' ? 'en' : 'black')); select.addEventListener('change', () => saveSetting(key, select.value, gui)); item.appendChild(select);
+        for (const [value, name] of Object.entries(values)) { const option = node('option', '', kind === 'language' ? name : t(name)); option.value = value; select.appendChild(option); }
+        select.value = kind === 'language' ? locale.normalize(source[key]) : String(source[key] || 'black'); select.addEventListener('change', () => saveSetting(key, select.value, gui)); item.appendChild(select);
       } else if (kind === 'range' || kind === 'blur') {
         const blur = kind === 'blur', normalize = blur ? appearance.blurLevel : appearance.glassLevel;
         const control = node('div', 'range-setting'), range = node('input'), output = node('output');
         range.type = 'range'; range.min = '0'; range.max = blur ? '100' : '90'; range.step = '1'; range.id = 'setting-' + key;
         range.value = String(normalize(source[key])); range.setAttribute('aria-label', label);
         range.disabled = source.glassEnabled === false;
+        range.setAttribute('aria-valuetext', t(blur ? '{value}% background blur' : '{value}% panel transparency', { value: range.value }));
         range.style.setProperty('--range-percent', Number(range.value) / Number(range.max) * 100 + '%');
         output.htmlFor = range.id; output.textContent = range.value + '%'; output.id = blur ? 'blur-percent' : 'glass-percent';
         range.addEventListener('input', () => {
-          const value = normalize(Number(range.value)); range.style.setProperty('--range-percent', value / Number(range.max) * 100 + '%'); output.textContent = value + '%'; range.setAttribute('aria-valuetext', value + (blur ? '% background blur' : '% panel transparency'));
+          const value = normalize(Number(range.value)); range.style.setProperty('--range-percent', value / Number(range.max) * 100 + '%'); output.textContent = value + '%'; range.setAttribute('aria-valuetext', t(blur ? '{value}% background blur' : '{value}% panel transparency', { value }));
           if (blur) appearance.previewBlur(value); else appearance.previewGlass(value);
         });
         range.addEventListener('change', () => saveSetting(key, normalize(Number(range.value)), true));
         control.appendChild(range); control.appendChild(output);
-        control.appendChild(button('Reset', 'text-button', () => saveSetting(key, blur ? 0 : 55, true))); item.appendChild(control);
+        control.appendChild(button(t('Reset'), 'text-button', () => saveSetting(key, blur ? 0 : 55, true))); item.appendChild(control);
       } else if (kind === 'background') {
         const controls = node('div', 'background-buttons');
-        controls.appendChild(button('Choose file', 'button', async event => {
+        controls.appendChild(button(t('Choose file'), 'button', async event => {
           const request = ++backgroundSelection, picker = event.currentTarget;
           picker.disabled = true;
           try {
-            const result = await remote.dialog.showOpenDialog(remote.getCurrentWindow(), { title: 'Choose a Toolbox background', properties: ['openFile'], filters: [{ name: 'Images and videos', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4'] }, { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] }, { name: 'MP4 videos', extensions: ['mp4'] }] });
+            const result = await remote.dialog.showOpenDialog(remote.getCurrentWindow(), { title: t('Choose a Toolbox background'), properties: ['openFile'], filters: [{ name: t('Images and videos'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4'] }, { name: t('Images'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] }, { name: t('MP4 videos'), extensions: ['mp4'] }] });
             if (!result.canceled && result.filePaths && result.filePaths[0]) {
               const selected = await appearance.selectBackground(result.filePaths[0]);
               if (request === backgroundSelection) saveSetting(key, selected, true);
             }
-          } catch (error) { if (request === backgroundSelection) modal('Could not load background', friendlyError(error)); }
+          } catch (error) { if (request === backgroundSelection) modal(t('Could not load background'), friendlyError(error)); }
           finally { picker.disabled = false; }
         }));
-        const reset = button('Default', 'text-button', () => { ++backgroundSelection; saveSetting(key, '', true); }); reset.disabled = !source[key]; controls.appendChild(reset); item.appendChild(controls);
+        const reset = button(t('Default'), 'text-button', () => { ++backgroundSelection; saveSetting(key, '', true); }); reset.disabled = !source[key]; controls.appendChild(reset); item.appendChild(controls);
       } else {
         const enabled = kind === 'inverse' ? !source[key] : !!source[key];
         const control = button('', 'switch', () => saveSetting(key, kind === 'inverse' ? enabled : !enabled, gui));
@@ -297,6 +305,8 @@ function renderSettings() {
     }
     list.appendChild(section);
   }
+  list.scrollTop = scrollTop;
+  if (focus && focus.startsWith('setting-') && $(focus)) $(focus).focus({ preventScroll: true });
 }
 
 document.querySelectorAll('[data-page]').forEach(value => value.addEventListener('click', () => setPage(value.dataset.page)));
@@ -307,12 +317,12 @@ $('maximize-btn').addEventListener('click', () => { const window = remote.getCur
 $('close-btn').addEventListener('click', () => remote.getCurrentWindow().close());
 $('support-btn').addEventListener('click', () => { try { external(remote.getGlobal('TeraProxy').SupportUrl); } catch (error) { toast(friendlyError(error)); } });
 $('info-btn').addEventListener('click', () => {
-  const content = node('div'); content.appendChild(node('p', '', 'TERA Toolbox · Graphite interface'));
-  const credits = translate('gui/main/static/tabs/credits/content', 'Original Toolbox contributors: Caali, Pinkie Pie and meishu.');
+  const content = node('div'); content.appendChild(node('p', '', t('TERA Toolbox · Graphite interface')));
+  const credits = translate('gui/main/static/tabs/credits/content', t('Original Toolbox contributors: Caali, Pinkie Pie and meishu.'));
   // Convert bundled trusted credits to text; no module-supplied HTML is ever injected.
   const parsed = new DOMParser().parseFromString(String(credits), 'text/html');
   parsed.querySelectorAll('script,style').forEach(value => value.remove());
-  content.appendChild(node('p', 'credits-note', parsed.body.textContent.trim())); modal('About Toolbox', content);
+  content.appendChild(node('p', 'credits-note', parsed.body.textContent.trim())); modal(t('About Toolbox'), content);
 });
 $('mods-folder').addEventListener('click', () => ipcRenderer.send('show mods folder'));
 $('module-search').addEventListener('input', renderModules); $('module-filter').addEventListener('change', renderModules);
@@ -325,9 +335,9 @@ $('clear-logs').addEventListener('click', () => { state.logs = []; $('warning-co
 $('save-logs').addEventListener('click', async () => {
   const text = state.logs.map(entry => (state.config && state.config.gui.logtimes ? '[' + entry.time + '] ' : '') + entry.text).join('\n') + '\n';
   try {
-    const chosen = await remote.dialog.showSaveDialog({ title: 'Save Toolbox console', defaultPath: 'toolbox.log', buttonLabel: 'Save log', filters: [{ name: 'Log files', extensions: ['log'] }] });
+    const chosen = await remote.dialog.showSaveDialog({ title: t('Save Toolbox console'), defaultPath: 'toolbox.log', buttonLabel: t('Save log'), filters: [{ name: t('Log files'), extensions: ['log'] }] });
     if (!chosen.canceled && chosen.filePath) await fs.promises.writeFile(chosen.filePath, text, 'utf8');
-  } catch (error) { modal('Could not save log', friendlyError(error)); }
+  } catch (error) { modal(t('Could not save log'), friendlyError(error)); }
 });
 $('modal-close').addEventListener('click', closeModal);
 $('modal').addEventListener('click', event => { if (event.target === $('modal')) closeModal(); });
@@ -357,9 +367,9 @@ ipcRenderer.on('set config', (_, config) => {
   // Retire old native fade and theme names, preserving unrelated preferences and update flags.
   if (gui.theme !== selected || Object.prototype.hasOwnProperty.call(gui, 'transparency')) ipcRenderer.send('set config', state.config);
   try { appearance.apply(state.config.gui, remote.getCurrentWindow()); } catch (error) { toast(friendlyError(error)); }
-  try { mui = new TeraToolboxMUI(config.uilanguage || 'en'); } catch (_) {}
+  applyLanguage(config.uilanguage);
   document.body.classList.toggle('logo-static', !state.config.gui.animatedLogo);
-  motion(); renderSettings(); setProxy(); renderUpdateState();
+  motion();
 });
 ipcRenderer.on('is admin', (_, enabled) => { $('admin-badge').hidden = !enabled; });
 ipcRenderer.on('proxy starting', () => { state.starting = true; state.stopping = false; setProxy(); });
@@ -368,7 +378,7 @@ ipcRenderer.on('update available', () => { state.updateAvailable = true; renderU
 ipcRenderer.on('set mods', (_, mods) => { finishAction(); state.mods = Array.isArray(mods) ? mods : []; renderModules(); renderOverview(); });
 ipcRenderer.on('set installable mods', (_, mods) => { finishAction(); state.available = Array.isArray(mods) ? mods : []; state.catalog = 'ready'; renderModules(); ipcRenderer.send('get mods'); });
 ipcRenderer.on('log', (_, message, type) => addLog(message, type));
-ipcRenderer.on('error', (_, error) => { finishAction(); if (state.catalog === 'loading') state.catalog = 'error'; renderModules(); modal('Toolbox message', friendlyError(error)); });
+ipcRenderer.on('error', (_, error) => { finishAction(); if (state.catalog === 'loading') state.catalog = 'error'; renderModules(); modal(t('Toolbox message'), friendlyError(error)); });
 window.addEventListener('beforeunload', () => { clearTimeout(state.logTimer); clearTimeout(state.actionTimer); clearTimeout(state.toastTimer); });
 try { appearance.apply(appearance.saved(), remote.getCurrentWindow()); } catch (_) {}
 renderModules(); renderSettings(); renderLogs(); motion();
