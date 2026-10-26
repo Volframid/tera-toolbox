@@ -7,11 +7,10 @@ const SupportURL = 'https://github.com/Volframid/tera-toolbox/issues';
 // Update
 async function updateSelf() {
     delete require.cache[require.resolve('./update-self')];
-    const Updater = require('./update-self');
 
     let error = false;
 
-    const updater = new Updater(branch);
+    const updater = require('./update-channel').createUpdater(branch);
     updater.on('run_start', () => { console.log(`[update] Self-update started (Branch: ${updater.branch})`); });
     updater.on('check_start', (serverIndex) => { if (updatelog) console.log(`[update] Update check started (Server: ${serverIndex})`); });
     updater.on('check_success', (serverIndex, operations) => { if (updatelog) console.log(`[update] Update check finished (Server: ${serverIndex}), ${operations.length} operations required`); });

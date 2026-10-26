@@ -8,7 +8,7 @@ The screenshot demonstrates a user-selected wallpaper. That wallpaper is not ins
 
 ## Download and run
 
-1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.3.2-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
+1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.3.3-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
 2. Extract the entire ZIP to a writable folder. Do not run it inside the archive or mix it into an existing Toolbox installation.
 3. Run **TeraToolbox.exe**. Internet access is needed for updates and the default modules' first download.
 4. Open **Modules** to manage modules, or copy your own modules into this installation's `mods` folder. Use **Start Toolbox**, then start the game as usual.
@@ -55,3 +55,9 @@ Both builders use the explicit `distribution-files.json` allowlist. Extra local 
 Graphite interface and distribution changes: **CEM**. Original Toolbox: **Caali, Pinkie Pie, meishu** and the upstream contributors. Included components and default modules retain their authors, notices and licenses; see [NOTICE](NOTICE.md).
 
 Report issues for this distribution in [this repository](https://github.com/Volframid/tera-toolbox/issues). Include the problem and relevant logs, after removing private information. The current public release was checked with the bundled Electron runtime and clean default-module metadata; gameplay compatibility still depends on the target server and your installed modules.
+
+## Repair an older custom installation
+
+An older local UI patch can still use the original Toolbox update server, which may replace Graphite launcher icons and core files. Graphite now checks its own update channel before GUI, CLI and periodic update checks.
+
+For an installation still using the old updater, extract the current portable release separately. Its `tools/repair-installation.cjs` can repair an existing installation using the included Electron runtime in Node mode. Pass the existing folder with `--target` and an empty, separate backup folder with `--backup`. The repair verifies all public core checksums and checks writable destinations before copying; it preserves `config.json`, installed modules, profiles, wallpapers and logs. Failed writes restore the copied files from the backup. Keep the existing Toolbox closed while running a manual repair. Core and module updates remain available afterward.

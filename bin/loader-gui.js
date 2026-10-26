@@ -153,8 +153,7 @@ function startUpdateCheck(branch, onUpdateAvailable, interval = 30 * 60 * 1000) 
 	if (UpdateCheckInterval || UpdateChecker)
 		return;
 
-	const Updater = require("./update-self");
-	UpdateChecker = new Updater(branch);
+	UpdateChecker = require('./update-channel').createUpdater(branch);
 
 	UpdateCheckInterval = setInterval(async () => {
 		try {

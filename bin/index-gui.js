@@ -75,11 +75,10 @@ function setSplashScreenInfo(info) {
 // Update
 async function updateSelf() {
     delete require.cache[require.resolve('./update-self')];
-    const Updater = require('./update-self');
 
     let errors = [];
 
-    const updater = new Updater(branch);
+    const updater = require('./update-channel').createUpdater(branch);
     updater.on('run_start', () => {
         console.log(`[update] Self-update started (Branch: ${updater.branch})`);
 
