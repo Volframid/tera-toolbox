@@ -21,10 +21,9 @@ class ModInterfaceBase {
                 this.instance.destructor();
         } finally {
             this.instance = null;
+            this.clearAllTimeouts();
+            this.clearAllIntervals();
         }
-
-        this.clearAllTimeouts();
-        this.clearAllIntervals();
     }
 
     // Data accessors
@@ -36,8 +35,11 @@ class ModInterfaceBase {
     // Timers
     setTimeout(callback, delay, ...args) {
         const id = setTimeout(() => {
-            callback(...args);
-            this._timeouts.delete(id);
+            try {
+                callback(...args);
+            } finally {
+                this._timeouts.delete(id);
+            }
         }, delay);
 
         this._timeouts.add(id);
@@ -194,6 +196,7 @@ class NetworkModInterface extends ModInterfaceBase {
         // Core mod instances
         this._command = null;
         this._game = null;
+        this._leaveGameTimers = null;
 
         // Initialize require proxy
         this.require = new Proxy(Object.create(null), {
@@ -215,7 +218,8 @@ class NetworkModInterface extends ModInterfaceBase {
         // Use tera-game-state callbacks to clear timers when entering/leaving the game
         if (this.info.name !== 'tera-game-state') {
             try {
-                this.game.on('leave_game', () => { this.clearAllTimeouts(); this.clearAllIntervals(); });
+                this._leaveGameTimers = () => { this.clearAllTimeouts(); this.clearAllIntervals(); };
+                this.game.on('leave_game', this._leaveGameTimers);
             } catch (_) {
                 this.warn(mui.get('mod/tera-game-state-not-loaded'));
             }
@@ -223,16 +227,20 @@ class NetworkModInterface extends ModInterfaceBase {
     }
 
     destructor() {
-        super.destructor();
-        this.dispatch.unhookModule(this.info.name);
-
-        // Destroy core mod instances
         try {
-            if (this._command && typeof this._command.destructor === 'function')
-                this._command.destructor();
+            super.destructor();
         } finally {
-            this._command = null;
-            this._game = null;
+            try {
+                this.dispatch.unhookModule(this.info.name);
+                if (this._command && typeof this._command.destructor === 'function')
+                    this._command.destructor();
+            } finally {
+                if (this._game && this._leaveGameTimers)
+                    this._game.removeListener('leave_game', this._leaveGameTimers);
+                this._leaveGameTimers = null;
+                this._command = null;
+                this._game = null;
+            }
         }
     }
 
