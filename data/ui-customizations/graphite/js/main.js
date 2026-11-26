@@ -53,6 +53,9 @@ function closeMenu() { $('action-menu').hidden = true; }
 function setPage(page) {
   if (!['modules', 'overview', 'console', 'settings'].includes(page)) return;
   state.page = page; closeMenu();
+  const header = $('page-' + page).querySelector('.page-header');
+  const controls = $('proxy-controls');
+  if (controls.parentElement !== header) header.appendChild(controls);
   document.querySelectorAll('.page').forEach(value => { const active = value.id === 'page-' + page; value.hidden = !active; value.classList.toggle('active', active); });
   document.querySelectorAll('.nav-button').forEach(value => { const active = value.dataset.page === page; value.classList.toggle('active', active); if (active) value.setAttribute('aria-current', 'page'); else value.removeAttribute('aria-current'); });
   if (page === 'modules') { if (!state.discover) ipcRenderer.send('get mods'); renderModules(); }
@@ -66,7 +69,9 @@ function setProxy() {
   $('proxy-state').textContent = status;
   $('proxy-dot').className = 'status-dot ' + (busy ? 'busy' : state.running ? 'running' : '');
   $('startproxy').textContent = state.starting ? t('Starting...') : state.stopping ? t('Stopping...') : state.running ? t('Stop Toolbox') : t('Start Toolbox');
-  $('startproxy-btn').disabled = busy || !state.config;
+  const button = $('startproxy-btn');
+  button.disabled = busy || !state.config;
+  button.classList.toggle('primary', !state.running);
   $('proxy-icon').firstElementChild.setAttribute('href', '#i-' + (state.running ? 'stop' : 'play'));
   renderOverview();
 }

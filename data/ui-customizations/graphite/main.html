@@ -59,16 +59,27 @@
         <button class="nav-button" data-page="settings"><svg><use href="#i-settings"/></svg><span>Settings</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <div class="proxy-state"><span id="proxy-dot" class="status-dot"></span><span id="proxy-state">Toolbox stopped</span></div>
-        <button id="startproxy-btn" class="button proxy-button"><svg id="proxy-icon"><use href="#i-play"/></svg><span id="startproxy">Start Toolbox</span></button>
         <div class="sidebar-links"><button id="info-btn">About</button><span>·</span><button id="support-btn">Support</button><span id="admin-badge" title="Toolbox is running as administrator" hidden>Admin</span></div>
       </div>
     </aside>
     <main class="workspace">
       <section class="page active" id="page-modules" aria-labelledby="modules-title">
-        <div class="page-header"><div><div class="eyebrow">WORKSPACE <span>/</span> MODULES</div><h1 id="modules-title">Your modules</h1><p>Manage your installed Toolbox modules.</p></div><button class="button primary" id="add-module"><svg><use href="#i-plus"/></svg>Add module</button></div>
+        <div class="page-header">
+          <div><div class="eyebrow">WORKSPACE <span>/</span> MODULES</div><h1 id="modules-title">Your modules</h1><p>Manage your installed Toolbox modules.</p></div>
+          <div id="proxy-controls" class="proxy-controls">
+            <div class="proxy-state" role="status"><span id="proxy-dot" class="status-dot" aria-hidden="true"></span><span id="proxy-state" dir="auto">Toolbox stopped</span></div>
+            <button id="startproxy-btn" class="button primary proxy-button"><svg id="proxy-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="startproxy" dir="auto">Start Toolbox</span></button>
+          </div>
+        </div>
         <div class="toolbar"><label class="search"><svg><use href="#i-search"/></svg><input id="module-search" placeholder="Search modules..." aria-label="Search modules" type="search"></label><select id="module-filter" aria-label="Filter modules"><option value="all">All modules</option><option value="enabled">Enabled</option><option value="disabled">Disabled</option><option value="updates-off">Auto update off</option></select><div class="view-controls" aria-label="Module layout"><button id="view-grid" class="icon-button" title="Grid view" aria-label="Grid view" aria-pressed="false"><svg><use href="#i-grid"/></svg></button><button id="view-list" class="icon-button selected" title="List view" aria-label="List view" aria-pressed="true"><svg><use href="#i-list"/></svg></button></div></div>
-        <div class="module-tabs"><button id="installed-tab" class="selected" aria-pressed="true">Installed</button><button id="discover-tab" aria-pressed="false">Discover</button><div class="toolbar-spacer"></div><button id="mods-folder" class="icon-button" title="Open mods folder" aria-label="Open mods folder"><svg><use href="#i-folder"/></svg></button><button id="refresh-mods" class="icon-button" title="Refresh module list" aria-label="Refresh module list"><svg><use href="#i-refresh"/></svg></button></div>
+        <div class="module-tabs">
+          <button id="installed-tab" class="selected" aria-pressed="true">Installed</button><button id="discover-tab" aria-pressed="false">Discover</button><div class="toolbar-spacer"></div>
+          <div class="module-actions">
+            <button id="mods-folder" class="icon-button" title="Open mods folder" aria-label="Open mods folder"><svg><use href="#i-folder"/></svg></button>
+            <button id="refresh-mods" class="icon-button" title="Refresh module list" aria-label="Refresh module list"><svg><use href="#i-refresh"/></svg></button>
+            <button class="button primary" id="add-module"><svg><use href="#i-plus"/></svg>Add module</button>
+          </div>
+        </div>
         <div class="table-heading"><span>MODULE</span><span id="status-column">STATUS</span><span id="update-column">AUTO UPDATE</span><span></span></div>
         <div id="module-list" class="module-list scroll-area" aria-live="polite"></div>
         <footer class="page-footer"><span id="module-count">Loading modules...</span><span id="update-state"><span class="status-dot neutral"></span><span>Updates checked at startup</span></span></footer>
@@ -80,8 +91,12 @@
         <div class="section-heading"><h2>Recent activity</h2><button data-go="console" class="text-button">View console →</button></div><div id="recent-activity" class="recent-activity"><p class="quiet-empty">Activity appears here when Toolbox writes to the console.</p></div>
       </section>
       <section class="page" id="page-console" aria-labelledby="console-title" hidden>
-        <div class="page-header"><div><div class="eyebrow">WORKSPACE <span>/</span> CONSOLE</div><h1 id="console-title">Console</h1><p>Live Toolbox output, with room to focus.</p></div><div class="header-actions"><button id="save-logs" class="button"><svg><use href="#i-download"/></svg>Save log</button><button id="clear-logs" class="button">Clear</button></div></div>
-        <div class="toolbar"><label class="search"><svg><use href="#i-search"/></svg><input id="log-search" type="search" placeholder="Search console..." aria-label="Search console"></label><select id="log-filter" aria-label="Filter log severity"><option value="all">All output</option><option value="warn">Warnings</option><option value="error">Errors</option></select><label class="check-label"><input id="log-follow" type="checkbox" checked>Follow</label></div>
+        <div class="page-header"><div><div class="eyebrow">WORKSPACE <span>/</span> CONSOLE</div><h1 id="console-title">Console</h1><p>Live Toolbox output, with room to focus.</p></div></div>
+        <div class="toolbar console-toolbar">
+          <label class="search"><svg><use href="#i-search"/></svg><input id="log-search" type="search" placeholder="Search console..." aria-label="Search console"></label>
+          <select id="log-filter" aria-label="Filter log severity"><option value="all">All output</option><option value="warn">Warnings</option><option value="error">Errors</option></select><label class="check-label"><input id="log-follow" type="checkbox" checked>Follow</label>
+          <div class="header-actions"><button id="save-logs" class="button"><svg><use href="#i-download"/></svg>Save log</button><button id="clear-logs" class="button">Clear</button></div>
+        </div>
         <div id="log-contents" class="log-contents scroll-area" role="log" aria-label="Toolbox output"></div><footer class="page-footer"><span id="log-count">0 entries</span><span>Latest 2,000 entries retained in this window</span></footer>
       </section>
       <section class="page" id="page-settings" aria-labelledby="settings-title" hidden>

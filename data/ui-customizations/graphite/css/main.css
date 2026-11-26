@@ -18,3 +18,65 @@
 .sidebar-links{flex-wrap:wrap}.nav-button{min-width:0}.nav-button span{overflow-wrap:break-word}
 [dir="rtl"] .log-contents,[dir="rtl"] .recent-row,[dir="rtl"] .module-name,[dir="rtl"] .module-description{direction:ltr;text-align:left}
 [dir="rtl"] .search input{text-align:right}
+.page-header {
+  align-items: flex-start;
+}
+
+.page-header > :first-child {
+  min-width: 0;
+}
+
+[dir="rtl"] .page-header {
+  flex-direction: row-reverse;
+}
+
+.proxy-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
+  direction: ltr;
+}
+
+.proxy-controls .proxy-state {
+  min-width: 136px;
+  min-height: 36px;
+  gap: 7px;
+  margin: 0;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.proxy-controls .proxy-button {
+  min-width: 124px;
+  width: auto;
+  min-height: 36px;
+  padding: 7px 10px;
+}
+
+.proxy-controls .proxy-button svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.module-actions {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.console-toolbar {
+  flex-wrap: wrap;
+}
+
+.console-toolbar .search {
+  min-width: 120px;
+}
+
+.console-toolbar .header-actions {
+  margin-left: auto;
+}
