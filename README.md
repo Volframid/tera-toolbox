@@ -8,7 +8,7 @@ The screenshot demonstrates a user-selected wallpaper. That wallpaper is not ins
 
 ## Download and run
 
-1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.3.5-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
+1. Open [Releases](https://github.com/Volframid/tera-toolbox/releases/latest) and download **tera-toolbox-graphite-v1.3.6-windows-x64.zip**. The portable release includes the required runtime. GitHub's automatic “Source code” downloads do not include that runtime.
 2. Extract the entire ZIP to a writable folder. Do not run it inside the archive or mix it into an existing Toolbox installation.
 3. Run **TeraToolbox.exe**. Internet access is needed for updates and the default modules' first download.
 4. Open **Modules** to manage modules, or copy your own modules into this installation's `mods` folder. Use **Start Toolbox**, then start the game as usual.
@@ -36,6 +36,8 @@ Only the seven upstream default module descriptors are included: `bugfix`, `comm
 ## Settings and updates
 
 Fresh installations use `config.example.json` defaults and create their own `config.json`. Automatic Toolbox and module updates are enabled. Toolbox updates use **this repository's `master` branch**, including the Graphite interface; modules continue to use their own authors' update servers.
+
+The Toolbox updater reuses HTTPS connections for core downloads and validates the server certificate.
 
 The self-update manifest excludes personal configuration, installed modules, wallpaper copies and logs. It does not replace your `mods` folder. Keep a backup of your own settings before moving an existing installation.
 

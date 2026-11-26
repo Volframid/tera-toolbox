@@ -1,6 +1,5 @@
 // Imports
 const fetch = require('node-fetch');
-const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -11,6 +10,11 @@ const EventEmitter = require('events');
 const AutoUpdateServers = [
     'https://raw.githubusercontent.com/Volframid/tera-toolbox/'
 ];
+const updateAgent = new https.Agent({
+    keepAlive: true,
+    maxFreeSockets: 2,
+    rejectUnauthorized: true
+});
 
 // Implementation
 function forcedirSync(dir) {
@@ -44,15 +48,7 @@ class Updater extends EventEmitter {
     buildURL(serverIndex, relpath) { return new URL(`${AutoUpdateServers[serverIndex]}${this.branch}/${relpath}`); }
 
     async fetchUrl(serverIndex, relpath) {
-        const HTTPAgent = new http.Agent({
-            'keepAlive': true
-        });
-        const HTTPSAgent = new https.Agent({
-            'keepAlive': true,
-            'rejectUnauthorized': false // temporary fix for Let's Encrypt certificate issues
-        });
-        const fileUrl = this.buildURL(serverIndex, relpath);
-        return await fetch(fileUrl, { 'agent': (fileUrl.protocol === 'https:') ? HTTPSAgent : HTTPAgent });
+        return fetch(this.buildURL(serverIndex, relpath), { agent: updateAgent });
     }
 
     async downloadRaw(serverIndex, relpath) {
