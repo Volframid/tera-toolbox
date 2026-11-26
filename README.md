@@ -2,9 +2,9 @@
 
 A redesigned TERA Toolbox interface maintained by **CEM**, based on [tera-private-toolbox/tera-toolbox](https://github.com/tera-private-toolbox/tera-toolbox).
 
-![Graphite interface with a custom wallpaper and clear glass panels](docs/images/glassy-ui.png)
+![Graphite Modules page with the Start Toolbox button and status in the upper right](docs/images/graphite-modules.png)
 
-The screenshot demonstrates a user-selected wallpaper. That wallpaper is not installed or included as a separate background file; you can choose your own image.
+The screenshot shows Graphite's glass panels with the built-in background. You can choose your own wallpaper in Settings.
 
 ## Download and run
 
