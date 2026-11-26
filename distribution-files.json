@@ -94,7 +94,7 @@
     "doc/mod/settings.md",
     "doc/mod/tera-game-state.md",
     "doc/mod/timers.md",
-    "docs/images/graphite-modules.png",
+    "docs/images/graphite-settings.png",
     "manifest.json",
     "mods/bugfix/module.json",
     "mods/command/module.json",
